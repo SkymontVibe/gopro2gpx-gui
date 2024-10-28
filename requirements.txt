@@ -1,0 +1,2 @@
+wxPython
+git+https://github.com/juanmcasillas/gopro2gpx
