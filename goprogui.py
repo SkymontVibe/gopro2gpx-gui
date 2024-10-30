@@ -5,6 +5,7 @@ from gopro2gpx import gopro2gpx
 import os
 import platform
 import subprocess
+import sys
 
 class Args(object):
     def __init__(self):
@@ -164,6 +165,9 @@ class MainFrame(wx.Frame):
             list(map(lambda x: x.Enable(False), control_list))
 
 if __name__ == '__main__':
+    if platform.system() == "Windows" and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        os.environ["PATH"] = os.environ["PATH"] + os.path.abspath(os.path.join(os.path.dirname(__file__), 'prebuilt')) + ";"
+
     app = wx.App()
     frame = MainFrame()
     app.MainLoop()
