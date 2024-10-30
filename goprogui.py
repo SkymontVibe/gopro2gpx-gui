@@ -19,7 +19,8 @@ class Args(object):
 class MainFrame(wx.Frame):
 
     def __init__(self):
-        super().__init__(parent=None, title='gopro2gpx-gui', style=wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
+        super().__init__(parent=None, title='gopro2gpx-gui', 
+                         style=wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         panel = wx.Panel(self)
 
         self.CreateStatusBar(style=wx.NO_FULL_REPAINT_ON_RESIZE)
@@ -31,7 +32,6 @@ class MainFrame(wx.Frame):
             labelText="原始文件：",
             buttonText="选择...",
             fileMask="带元数据视频 (*.mp4)|*.mp4|二进制 (*.bin, cli 版加 -b 参数)|*.bin",
-            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
             )
 
         # 输出路径行
@@ -103,13 +103,23 @@ class MainFrame(wx.Frame):
         self.Close(True)
 
     def on_ok_button_click(self, event):
+        if not self.source_file_button.GetValue():
+            wx.MessageBox("原始文件不能为空！", "错误",
+                          style=wx.OK | wx.CENTER | wx.ICON_ERROR)
+            return
+        
+        if not self.output_path_button.GetValue():
+            wx.MessageBox("输出目录不能为空！", "错误",
+                          style=wx.OK | wx.CENTER | wx.ICON_ERROR)
+            return
+        
         self.toggle_enable_status(False)
         self.SetStatusText("正在转换：" + self.source_file_button.GetValue())
         # 创建并启动线程执行耗时操作
         args = Args()
         args.files = [self.source_file_button.GetValue()]
-        output_file_prefix = os.path.basename(args.files[0])
-        args.outputfile = self.output_path_button.GetValue() + "/" + output_file_prefix
+        _, output_file_prefix = os.path.split(args.files[0])
+        args.outputfile = self.output_path_button.GetValue() + os.path.sep + output_file_prefix
         args.binary = True if args.files[0].endswith(".bin") else False
         args.skip = True if self.checkbox2.Value else False
         args.verbose = self.log_level_slider.GetValue()
@@ -120,21 +130,28 @@ class MainFrame(wx.Frame):
         self.long_running_task.start()
 
     def perform_convertion(self, arglist):
+        result_txt = "已完成"
         # 模拟耗时操作
-        gopro2gpx.main_core(arglist)
+        try:
+            gopro2gpx.main_core(arglist)
+            if self.checkbox1.Value:
+                if platform.system() == "Windows":
+                    subprocess.run(["explorer.exe", self.output_path_button.GetValue()])
+                elif platform.system() == "Linux":
+                    subprocess.run(["xdg-open", self.output_path_button.GetValue()]) 
+        except Exception as e:
+            result_txt = "失败"
+            wx.MessageBox("处理时出错，请检查输入文件！\n\n错误信息：" + str(e), "错误",
+                    style=wx.OK | wx.CENTER | wx.ICON_ERROR)
 
         # 更新状态文本（必须在主线程中执行）
-        wx.CallAfter(self.update_status)
+        wx.CallAfter(self.update_status, result_txt)
 
-    def update_status(self):
-        self.SetStatusText("已完成")
+    def update_status(self, txt):
+        self.SetStatusText(txt)
         self.toggle_enable_status(True)
         self.progress_bar.SetValue(100)
-        if self.checkbox1.Value:
-            if platform.system() == "Windows":
-                self # TODO
-            elif platform.system() == "Linux":
-                subprocess.run(["xdg-open", self.output_path_button.GetValue()]) 
+        
         
     def toggle_enable_status(self, enabled):
         control_list = [self.output_path_button, self.source_file_button, 
