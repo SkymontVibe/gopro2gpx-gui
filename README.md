@@ -1,3 +1,5 @@
+# gopro2gpx-gui
+
 ## Prebuilt `ffmpeg` for Windows
 
 Used `mingw-w64` build from [nuwen.net](https://nuwen.net/mingw.html). Add `C:\MinGW\bin` to `PATH` environment variable.
@@ -30,4 +32,10 @@ Used `mingw-w64` build from [nuwen.net](https://nuwen.net/mingw.html). Add `C:\M
 
 make -j8 # wait for a while
 make install
+```
+
+## Build a single executable file for Windows
+
+```bash
+pyinstaller goprogui.spec # generated to the dist/ folder
 ```
