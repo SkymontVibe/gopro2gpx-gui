@@ -137,9 +137,9 @@ class MainFrame(wx.Frame):
             gopro2gpx.main_core(arglist)
             if self.checkbox1.Value:
                 if platform.system() == "Windows":
-                    subprocess.run(["explorer.exe", self.output_path_button.GetValue()])
+                   subprocess.run(["explorer.exe", self.output_path_button.GetValue()])
                 elif platform.system() == "Linux":
-                    subprocess.run(["xdg-open", self.output_path_button.GetValue()]) 
+                   subprocess.run(["xdg-open", self.output_path_button.GetValue()]) 
         except Exception as e:
             result_txt = "失败"
             wx.MessageBox("处理时出错，请检查输入文件！\n\n错误信息：" + str(e), "错误",
@@ -165,8 +165,10 @@ class MainFrame(wx.Frame):
             list(map(lambda x: x.Enable(False), control_list))
 
 if __name__ == '__main__':
-    if platform.system() == "Windows" and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        os.environ["PATH"] = os.environ["PATH"] + os.path.abspath(os.path.join(os.path.dirname(__file__), 'prebuilt')) + ";"
+    if platform.system() == "Windows" and getattr(sys, 'frozen', False):
+        print("Running in pyinstaller bundle")
+        os.environ["PATH"] = os.environ["PATH"] + ";" + os.path.abspath(os.path.join(os.path.dirname(__file__), 'prebuilt')) + ";"
+        print("PATH:  ", os.environ["PATH"])
 
     app = wx.App()
     frame = MainFrame()
