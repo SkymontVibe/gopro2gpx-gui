@@ -2,9 +2,10 @@
 
 ## Prebuilt `ffmpeg` for Windows
 
-Used `mingw-w64` build from [nuwen.net](https://nuwen.net/mingw.html). Add `C:\MinGW\bin` to `PATH` environment variable.
+Used `mingw-w64` build from [nuwen.net](https://nuwen.net/mingw.html). Add `C:\MinGW\bin` to `PATH` environment variable, and place [yasm.exe](http://www.tortall.net/projects/yasm/wiki/Download) there.
 
 ```bash
+# ffmpeg 7.1 source root dir
 ./configure --disable-debug \
             --disable-doc \
             --disable-encoders \
