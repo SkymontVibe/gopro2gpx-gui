@@ -27,7 +27,6 @@ class MainFrame(wx.Frame):
         self.CreateStatusBar(style=wx.NO_FULL_REPAINT_ON_RESIZE)
         self.SetStatusText("就绪")
 
-        # 源文件行
         self.source_file_button = filebrowse.FileBrowseButton(
             panel, 
             labelText="原始文件：",
@@ -35,54 +34,44 @@ class MainFrame(wx.Frame):
             fileMask="带元数据视频 (*.mp4)|*.mp4|二进制 (*.bin, cli 版加 -b 参数)|*.bin",
             )
 
-        # 输出路径行
         self.output_path_button = filebrowse.DirBrowseButton(
             panel,
             labelText="输出目录：",
             buttonText="浏览..."
         )
 
-        # 日志等级行
         log_level_label = wx.StaticText(panel, label='日志等级：')
         self.log_level_slider = wx.Slider(panel, minValue=0, maxValue=3, value=0, style=wx.SL_HORIZONTAL | wx.SL_VALUE_LABEL )
 
-        # 复选框行
         self.checkbox1 = wx.CheckBox(panel, label='完成后打开文件管理器')
         self.checkbox2 = wx.CheckBox(panel, label='跳过坏 GPS 块')
 
-        # 进度条和按钮行
         self.progress_bar = wx.Gauge(panel, range=100, style=wx.GA_HORIZONTAL)
         self.close_button = wx.Button(panel, id=wx.ID_CLOSE)
         self.close_button.Bind(wx.EVT_BUTTON, self.on_close_button_click)
         self.start_button = wx.Button(panel, id=wx.ID_OK)
         self.start_button.Bind(wx.EVT_BUTTON, self.on_ok_button_click)
 
-        # 使用sizer布局
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # 源文件行布局
         source_file_sizer = wx.BoxSizer(wx.HORIZONTAL)
         source_file_sizer.Add(self.source_file_button, 1, wx.ALL | wx.EXPAND , 5)
         main_sizer.Add(source_file_sizer, 0, wx.EXPAND)
 
-        # 输出路径行布局
         output_path_sizer = wx.BoxSizer(wx.HORIZONTAL)
         output_path_sizer.Add(self.output_path_button, 1, wx.ALL | wx.EXPAND, 5)
         main_sizer.Add(output_path_sizer, 0, wx.EXPAND)
 
-        # 日志等级行布局
         log_level_sizer = wx.BoxSizer(wx.HORIZONTAL)
         log_level_sizer.Add(log_level_label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
         log_level_sizer.Add(self.log_level_slider, 1, wx.ALL | wx.EXPAND, 5)
         main_sizer.Add(log_level_sizer, 0, wx.EXPAND)
 
-        # 复选框行布局
         checkbox_sizer = wx.GridSizer(2)
         checkbox_sizer.Add(self.checkbox1, 0, wx.ALL, 5)
         checkbox_sizer.Add(self.checkbox2, 0, wx.ALL, 5)
         main_sizer.Add(checkbox_sizer, 0, wx.EXPAND)
 
-        # 进度条和按钮行布局
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer.Add(self.progress_bar, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         button_sizer.Add(self.close_button, 0, wx.ALL, 5)
@@ -116,7 +105,6 @@ class MainFrame(wx.Frame):
         
         self.toggle_enable_status(False)
         self.SetStatusText("正在转换：" + self.source_file_button.GetValue())
-        # 创建并启动线程执行耗时操作
         args = Args()
         args.files = [self.source_file_button.GetValue()]
         _, output_file_prefix = os.path.split(args.files[0])
@@ -132,7 +120,6 @@ class MainFrame(wx.Frame):
 
     def perform_convertion(self, arglist):
         result_txt = "已完成"
-        # 模拟耗时操作
         try:
             gopro2gpx.main_core(arglist)
             if self.checkbox1.Value:
@@ -145,7 +132,6 @@ class MainFrame(wx.Frame):
             wx.MessageBox("处理时出错，请检查输入文件！\n\n错误信息：" + str(e), "错误",
                     style=wx.OK | wx.CENTER | wx.ICON_ERROR)
 
-        # 更新状态文本（必须在主线程中执行）
         wx.CallAfter(self.update_status, result_txt)
 
     def update_status(self, txt):
